@@ -6,7 +6,7 @@ print("-------------------------------------")
 # Creation of the problem
 prob = LpProblem("Hydroelectric_Problem", LpMaximize)
 
-# Juste for the compilation
+# Just for the compilation
 minFlowct = 0
 maxFlowct = 300
 

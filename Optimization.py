@@ -1,4 +1,5 @@
 from pulp import *
+# Maybe use numpy and panda for data of parameters and sets
 
 print("-------------------------------------")
 
@@ -38,5 +39,3 @@ prob += Vc1t == ANCc1t + Vc1t - Xc1t - Yc1t, "Tank volume of the first plant"
 prob += lpSum(NBctn for n in range(1, 3)) == 1, "Single active turbine combination"
 prob += Vct1 == InitialVolumec, "Initial volume in each tank"
 prob += Vct30 == FinalVolumec, "Final volume in each tank"
-
-

@@ -58,7 +58,7 @@ print(Vct)
 # End Vct variable
 
 
-plant = [Xct, Yct, Vct]
+plant = {[Xct], [Yct], [Vct]}
 
 ANCc1t = 300
 # Tableau pour chaque centrale

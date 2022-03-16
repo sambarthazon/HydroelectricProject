@@ -14,14 +14,18 @@ period = ['Day 1', 'Day 2', 'Day 3', 'Day 4', 'Day 5', 'Day 6', 'Day 7', 'Day 8'
          'Day 21', 'Day 22', 'Day 23', 'Day 24', 'Day 25', 'Day 26', 'Day 27', 'Day 28', 'Day 29', 'Day 30']
 
 
+# Plant
+plant = ['Plant 1', 'Plant 2']
+
+
 print("\n---------- Xct ----------")
 # Xct variable : Turbined volume in plant c at period t (minFlowct < columnsXct < maxFlowct)
 # Just for the compilation
 minFlowct = 0
 maxFlowct = 100
 
-columnsXct = {'Plant 1': [LpVariable("TurbinedVolume", minFlowct, maxFlowct, cat="Float")],
-           'Plant 2': [LpVariable("TurbinedVolume", minFlowct, maxFlowct, cat="Float")]}
+columnsXct = {plant[0]: [LpVariable("TurbinedVolume", minFlowct, maxFlowct, cat="Float")],
+           plant[1]: [LpVariable("TurbinedVolume", minFlowct, maxFlowct, cat="Float")]}
 
 linesXct = period
 
@@ -36,20 +40,20 @@ print("\n---------- Yct ----------")
 minWeirct = 0
 maxWeirct = 1000
 
-columnsYct = {'Plant 1': [LpVariable("DischargedVolume", minWeirct, maxWeirct, cat="Float")],
-           'Plant 2': [LpVariable("DischargedVolume", minWeirct, maxWeirct, cat="Float")]}
+columnsYct = {plant[0]: [LpVariable("DischargedVolume", minWeirct, maxWeirct, cat="Float")],
+           plant[1]: [LpVariable("DischargedVolume", minWeirct, maxWeirct, cat="Float")]}
 
 linesYct = period
 
 Yct = pd.DataFrame(columnsYct, index=linesYct)
 print(Yct)
-# End Xct variable
+# End Yct variable
 
 
 print("\n---------- Vct ----------")
 # Vct variable : Tank volume in plant c at period t
-columnsVct = {'Plant 1': [LpVariable("100", 100, cat="Float")],
-           'Plant 2': [LpVariable("230", 100, cat="Float")]}
+columnsVct = {plant[0]: [LpVariable("100", 100, cat="Float")],
+           plant[1]: [LpVariable("230", 100, cat="Float")]}
 
 linesVct = period
 
@@ -58,8 +62,6 @@ print(Vct)
 # End Vct variable
 
 
-plant = [Xct, Yct, Vct]
-
 ANCc1t = 300
 # Tableau pour chaque centrale
 InitialVolumec = 360
@@ -67,11 +69,13 @@ InitialVolumec = 360
 # Number of active turbines
 NBctn = LpVariable("ActiveTurbines", cat="Binary")
 
-for i in plant(0, 2):
-    for j in linesXct(0, 29):
-        print(2*Xct.iloc[i, j])
-        prob += 2*Xct.iloc[i, j], "Objective Function"
+# for i in plant:
+#     for j in period:
+        
+prob += 2*Xct['Plant 1']['Day 1'], "Objective Function"
 
+prob += Vct['Plant 1']['Day 1'] == ANCc1t + Vct['Plant 1']['Day 1'] - Xct['Plant 1']['Day 1'] - Yct['Plant 1']['Day 1'], "Tank volume of the first plant"
+prob += Vct['Plant 1']['Day 1'] == InitialVolumec, "Initial volume in each tank"
 
 # faire conversion entre m^2/s en hectom^2/jour
 
@@ -84,10 +88,14 @@ for i in plant(0, 2):
 # Constrains
 # prob += Pct <= 2*Xcn, "Power produced by each plant"
 # Variables en hectom^2/jour (conversion : m2/s = 0,086400 hecto^m2/jour)
-prob += Vct.loc['Day 1'][1] == ANCc1t + Vct.loc['Day 1'][1] - Xct.loc['Day 1'][1] - Yct.loc['Day 1'][1], "Tank volume of the first plant"
-prob += Vct.loc['Day 1'][1] == InitialVolumec, "Initial volume in each tank"
+# prob += Vct.loc['Day 1'][1] == ANCc1t + Vct.loc['Day 1'][1] - Xct.loc['Day 1'][1] - Yct.loc['Day 1'][1], "Tank volume of the first plant"
+# prob += Vct.loc['Day 1'][1] == InitialVolumec, "Initial volume in each tank"
 # prob += Vct30 == FinalVolumec, "Final volume in each tank"
 
 prob.solve()
-print(pulp.value(Yct.loc['Day 1'][1]))
-print(pulp.value(Xct.loc['Day 1'][1]))
+print(pulp.value(Yct.iloc[0, 0]))
+print(pulp.value(Xct.iloc[0, 0]))
+Xct['Plant 1']['Day 1'] = pulp.value(Xct.iloc[0, 0])
+Yct['Plant 1']['Day 1'] = pulp.value(Yct.iloc[0, 0])
+print(Xct)
+print(Yct)

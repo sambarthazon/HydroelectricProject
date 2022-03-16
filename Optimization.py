@@ -13,6 +13,7 @@ period = ['Day 1', 'Day 2', 'Day 3', 'Day 4', 'Day 5', 'Day 6', 'Day 7', 'Day 8'
          'Day 11', 'Day 12', 'Day 13', 'Day 14', 'Day 15', 'Day 16', 'Day 17', 'Day 18', 'Day 19', 'Day 20',
          'Day 21', 'Day 22', 'Day 23', 'Day 24', 'Day 25', 'Day 26', 'Day 27', 'Day 28', 'Day 29', 'Day 30']
 
+
 # Plant
 plant = ['Plant 1', 'Plant 2']
 
@@ -68,13 +69,13 @@ InitialVolumec = 360
 # Number of active turbines
 NBctn = LpVariable("ActiveTurbines", cat="Binary")
 
-for i in plant:
-    for j in period:
-        prob += 2*Xct['Plant 1'][j], "Objective Function"
+# for i in plant:
+#     for j in period:
+        
+prob += 2*Xct['Plant 1']['Day 1'], "Objective Function"
 
-
-prob += Vct['Plant 1'][j] == ANCc1t + Vct['Plant 1'][j] - Xct['Plant 1'][j] - Yct['Plant 1'][j], "Tank volume of the first plant"
-prob += Vct['Plant 1'][j] == InitialVolumec, "Initial volume in each tank"
+prob += Vct['Plant 1']['Day 1'] == ANCc1t + Vct['Plant 1']['Day 1'] - Xct['Plant 1']['Day 1'] - Yct['Plant 1']['Day 1'], "Tank volume of the first plant"
+prob += Vct['Plant 1']['Day 1'] == InitialVolumec, "Initial volume in each tank"
 
 # faire conversion entre m^2/s en hectom^2/jour
 
@@ -92,5 +93,9 @@ prob += Vct['Plant 1'][j] == InitialVolumec, "Initial volume in each tank"
 # prob += Vct30 == FinalVolumec, "Final volume in each tank"
 
 prob.solve()
-print(pulp.value(Yct['Plant 1']))
-print(pulp.value(Xct['Plant 1']))
+print(pulp.value(Yct.iloc[0, 0]))
+print(pulp.value(Xct.iloc[0, 0]))
+Xct['Plant 1']['Day 1'] = pulp.value(Xct.iloc[0, 0])
+Yct['Plant 1']['Day 1'] = pulp.value(Yct.iloc[0, 0])
+print(Xct)
+print(Yct)

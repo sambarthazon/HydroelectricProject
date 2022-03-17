@@ -105,5 +105,5 @@ prob += Vct['Plant 1']['Day 1'] == InitialVolumec, "Initial volume in each tank"
 prob.solve()
 Xct['Plant 1']['Day 1'] = pulp.value(Xct.iloc[0, 0])
 Yct['Plant 1']['Day 1'] = pulp.value(Yct.iloc[0, 0])
-print(Xct)
-print(Yct)
+print("\n---------- Xct ----------\n", Xct)
+print("\n---------- Yct ----------\n", Yct)

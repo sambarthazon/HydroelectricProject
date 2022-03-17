@@ -8,20 +8,20 @@ print("\n\n\n------------------ New run ------------------") # Debug
 prob = LpProblem("Hydroelectric_Problem", LpMaximize)
 
 
-period = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
-          11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
-          21, 22, 23, 24, 25, 26, 27, 28, 29, 30]
+# period = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
+#           11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
+#           21, 22, 23, 24, 25, 26, 27, 28, 29, 30]
 
-plant = [1, 2]
+# plant = [1, 2]
 
-# # Periode of the optimization
-# period = ['Day 1', 'Day 2', 'Day 3', 'Day 4', 'Day 5', 'Day 6', 'Day 7', 'Day 8', 'Day 9', 'Day 10',
-#          'Day 11', 'Day 12', 'Day 13', 'Day 14', 'Day 15', 'Day 16', 'Day 17', 'Day 18', 'Day 19', 'Day 20',
-#          'Day 21', 'Day 22', 'Day 23', 'Day 24', 'Day 25', 'Day 26', 'Day 27', 'Day 28', 'Day 29', 'Day 30']
+# Periode of the optimization
+period = ['Day 1', 'Day 2', 'Day 3', 'Day 4', 'Day 5', 'Day 6', 'Day 7', 'Day 8', 'Day 9', 'Day 10',
+         'Day 11', 'Day 12', 'Day 13', 'Day 14', 'Day 15', 'Day 16', 'Day 17', 'Day 18', 'Day 19', 'Day 20',
+         'Day 21', 'Day 22', 'Day 23', 'Day 24', 'Day 25', 'Day 26', 'Day 27', 'Day 28', 'Day 29', 'Day 30']
 
 
-# # Plant
-# plant = ['Plant 1', 'Plant 2']
+# Plant
+plant = ['Plant 1', 'Plant 2']
 
 
 
@@ -90,10 +90,12 @@ for i in plant:
     for j in period:
         # print([i])
         prob += 2*Xct[i][j], "Objective Function"
-        prob += Vct[i][j] == ANCct[i][j] + Vct[i][j] - Xct[i][j] - Yct[i][j] #, "Tank volume of the first plant"
-        prob += Vct[i][j] == InitialVolumec #, "Initial volume in each tank"
-        
-        prob.solve()
+        prob += Vct[i][j] == ANCct[i][j] + Vct[i][j] - Xct[i][j] - Yct[i][j], "Tank volume of the first plant"
+        prob += Vct[i][j] == InitialVolumec, "Initial volume in each tank"
+
+prob.solve()
+for i in plant:
+    for j in period:
         Xct[i][j] = pulp.value(Xct.iloc[i, j])
         Yct[i][j] = pulp.value(Yct.iloc[i, j])
         

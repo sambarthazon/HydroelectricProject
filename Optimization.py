@@ -86,16 +86,16 @@ InitialVolumec = 360
 # Number of active turbines
 NBctn = LpVariable("ActiveTurbines", cat="Binary")
 
-for i in plant:
-    for j in period:
+for i in range(0, 1):
+    for j in range(0, 29):
         # print([i])
-        prob += 2*Xct[i][j], "Objective Function"
-        prob += Vct[i][j] == ANCct[i][j] + Vct[i][j] - Xct[i][j] - Yct[i][j], "Tank volume of the first plant"
-        prob += Vct[i][j] == InitialVolumec, "Initial volume in each tank"
+        prob += 2*Xct.iloc[i, j], "Objective Function"
+        prob += Vct.iloc[i, j+1] == ANCct.iloc[i, j] + Vct.iloc[i, j] - Xct.iloc[i, j] - Yct.iloc[i, j], "Tank volume of the first plant"
+        prob += Vct.iloc[i, j] == InitialVolumec, "Initial volume in each tank"
 
 prob.solve()
-for i in plant:
-    for j in period:
+for i in range(0, 1):
+    for j in range(0, 29):
         Xct[i][j] = pulp.value(Xct.iloc[i, j])
         Yct[i][j] = pulp.value(Yct.iloc[i, j])
         

@@ -84,7 +84,7 @@ NBctn = LpVariable("ActiveTurbines", cat="Binary")
         
 prob += 2*Xct['Plant 1']['Day 1'], "Objective Function"
 
-prob += Vct['Plant 1']['Day 1'] == ANCct['Plant 1']['Day 1'] + Vct['Plant 1']['Day 1'] - Xct['Plant 1']['Day 1'] - Yct['Plant 1']['Day 1'], "Tank volume of the first plant"
+prob += Vct['Plant 1']['Day 2'] == ANCct['Plant 1']['Day 1'] + Vct['Plant 1']['Day 1'] - Xct['Plant 1']['Day 1'] - Yct['Plant 1']['Day 1'], "Tank volume of the first plant"
 prob += Vct['Plant 1']['Day 1'] == InitialVolumec, "Initial volume in each tank"
 
 # faire conversion entre m^2/s en hectom^2/jour

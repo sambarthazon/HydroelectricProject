@@ -1,3 +1,4 @@
+from asyncio.trsock import TransportSocket
 from pulp import *
 import pandas as pd
 # Maybe use numpy and panda for data of parameters and sets
@@ -22,6 +23,10 @@ period = ['Day 1', 'Day 2', 'Day 3', 'Day 4', 'Day 5', 'Day 6', 'Day 7', 'Day 8'
 
 # Plant
 plant = ['Plant 1', 'Plant 2']
+
+
+# Tank
+tank = ['Tank 1', 'Tank 2']
 
 
 
@@ -80,29 +85,52 @@ ANCct = pd.DataFrame(columnsANCct, index=linesANCct)
 # End ANCct variable
 
 
-# Tableau pour chaque centrale
-InitialVolumec = 360
+
+# InitVolumec variable : initial volume of each plant
+columnsInitVolume = {plant[0]: 100,
+                     plant[1]: 100}
+
+linesInitVolume = tank
+
+InitVolume = pd.DataFrame(columnsInitVolume, index=linesInitVolume)
+# print("\n---------- InitVolume ----------\n", InitVolume)
+# End InitVolume variable
+
+
 
 # Number of active turbines
 NBctn = LpVariable("ActiveTurbines", cat="Binary")
 
-for i in range(0, 1):
-    for j in range(0, 29):
-        # print([i])
-        prob += 2*Xct.iloc[i, j], "Objective Function"
-        prob += Vct.iloc[i, j+1] == ANCct.iloc[i, j] + Vct.iloc[i, j] - Xct.iloc[i, j] - Yct.iloc[i, j], "Tank volume of the first plant"
-        prob += Vct.iloc[i, j] == InitialVolumec, "Initial volume in each tank"
 
-prob.solve()
-for i in range(0, 1):
-    for j in range(0, 29):
-        Xct[i][j] = pulp.value(Xct.iloc[i, j])
-        Yct[i][j] = pulp.value(Yct.iloc[i, j])
+for i in plant:
+    for j in tank:
+        prob += Vct[i]['Day 1'] == InitVolume[i][j] + ANCct[i]['Day 1'] - Xct[i]['Day 1'], "Initial tank volume of the plant i"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# for i in plant:
+#     for j in period:
+#         prob += 2*Xct.iloc[i, j], "Objective Function"
+#         prob += Vct.iloc[i, j+1] == ANCct.iloc[i, j] + Vct.iloc[i, j] - Xct.iloc[i, j] - Yct.iloc[i, j], "Tank volume of the first plant"
+#         prob += Vct.iloc[i, j] == InitialVolumec, "Initial volume in each tank"
+
+# prob.solve()
+# for i in range(0, 1):
+#     for j in range(0, 29):
+#         Xct[i][j] = pulp.value(Xct.iloc[i, j])
+#         Yct[i][j] = pulp.value(Yct.iloc[i, j])
         
-# prob += 2*Xct['Plant 1']['Day 1'], "Objective Function"
-
-# prob += Vct['Plant 1']['Day 1'] == ANCct['Plant 1']['Day 1'] + Vct['Plant 1']['Day 1'] - Xct['Plant 1']['Day 1'] - Yct['Plant 1']['Day 1'], "Tank volume of the first plant"
-# prob += Vct['Plant 1']['Day 1'] == InitialVolumec, "Initial volume in each tank"
 
 # faire conversion entre m^2/s en hectom^2/jour
 # Variables en hectom^2/jour (conversion : m2/s = 0,086400 hecto^m2/jour)
@@ -112,17 +140,6 @@ for i in range(0, 1):
 # Objection Function
 # prob += lpSum(lpSum((2)for c in range(1, 2))for p in range(1, 30)), "Objective Function"
 
-
-# Constrains
-# prob += Pct <= 2*Xcn, "Power produced by each plant"
-
-# prob += Vct.loc['Day 1'][1] == ANCc1t + Vct.loc['Day 1'][1] - Xct.loc['Day 1'][1] - Yct.loc['Day 1'][1], "Tank volume of the first plant"
-# prob += Vct.loc['Day 1'][1] == InitialVolumec, "Initial volume in each tank"
-# prob += Vct30 == FinalVolumec, "Final volume in each tank"
-
-# prob.solve()
-# Xct['Plant 1']['Day 1'] = pulp.value(Xct.iloc[0, 0])
-# Yct['Plant 1']['Day 1'] = pulp.value(Yct.iloc[0, 0])
 
 
 

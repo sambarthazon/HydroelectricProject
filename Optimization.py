@@ -102,9 +102,8 @@ InitVolume = pd.DataFrame(columnsInitVolume, index=linesInitVolume)
 NBctn = LpVariable("ActiveTurbines", cat="Binary")
 
 
-for i in plant:
-    for j in tank:
-        prob += Vct[i][j] == InitVolume[i][j] + ANCct[i][j] - Xct[i][j], "Initial tank volume of the plant i"
+prob += 2*Xct.iloc[i, j], "Objective Function"
+
 
 
 

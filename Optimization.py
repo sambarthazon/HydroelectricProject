@@ -104,7 +104,7 @@ NBctn = LpVariable("ActiveTurbines", cat="Binary")
 
 for i in plant:
     for j in tank:
-        prob += Vct[i]['Day 1'] == InitVolume[i][j] + ANCct[i]['Day 1'] - Xct[i]['Day 1'], "Initial tank volume of the plant i"
+        prob += Vct[i][j] == InitVolume[i][j] + ANCct[i][j] - Xct[i][j], "Initial tank volume of the plant i"
 
 
 

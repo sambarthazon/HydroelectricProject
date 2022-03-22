@@ -101,7 +101,7 @@ prob += 2*Xct['Plant 1']['Day 1'], "Objective Function"
 for plant in plants:
     for tank in tanks:
         prob += Vct[plant]['Day 1'] == (InitVolume[plant][tank] + InitVolume[plant][tank]) - Xct[plant]['Day 1'] + ANCct[plant]['Day 1']
-        
+        # Vct[plant]['Day 1'] = Vct.iloc[plant, 0]
 
 
 for plant in plants:

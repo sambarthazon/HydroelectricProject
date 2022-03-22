@@ -101,13 +101,16 @@ prob += 2*Xct['Plant 1']['Day 1'], "Objective Function"
 for plant in plants:
     for tank in tanks:
         prob += Vct[plant]['Day 1'] == (InitVolume[plant][tank] + InitVolume[plant][tank]) - Xct[plant]['Day 1'] + ANCct[plant]['Day 1']
-        print(Vct)
 
-# for plant in plants:
-#     for day in days:
-#         i = day+1
-#         print(i)
-        # prob += Vct[plant][day+1] == ANCct[plant][day] + Vct[plant][day] - Xct[plant][day] - Yct[plant][day], "Tank volume of the plant plant of day day"
+        # prob.solve()
+        # Xct[plant]['Day 1'] = pulp.value(Xct.iloc[0, 0])
+        # print(Xct)
+
+
+
+for plant in plants:
+    for day in days:
+        prob += Vct[plant][day] == ANCct[plant][day] + Vct[plant][day] - Xct[plant][day] - Yct[plant][day], "Tank volume of the plant plant of day day"
 
 
 

@@ -9,36 +9,30 @@ print("\n\n\n------------------ New run ------------------") # Debug
 prob = LpProblem("Hydroelectric_Problem", LpMaximize)
 
 
-# period = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
-#           11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
-#           21, 22, 23, 24, 25, 26, 27, 28, 29, 30]
-
-# plant = [1, 2]
-
-# Periode of the optimization
-period = ['Day 1', 'Day 2', 'Day 3', 'Day 4', 'Day 5', 'Day 6', 'Day 7', 'Day 8', 'Day 9', 'Day 10',
+# Period of the optimization
+days = ['Day 1', 'Day 2', 'Day 3', 'Day 4', 'Day 5', 'Day 6', 'Day 7', 'Day 8', 'Day 9', 'Day 10',
          'Day 11', 'Day 12', 'Day 13', 'Day 14', 'Day 15', 'Day 16', 'Day 17', 'Day 18', 'Day 19', 'Day 20',
          'Day 21', 'Day 22', 'Day 23', 'Day 24', 'Day 25', 'Day 26', 'Day 27', 'Day 28', 'Day 29', 'Day 30']
 
 
 # Plant
-plant = ['Plant 1', 'Plant 2']
+plants = ['Plant 1', 'Plant 2']
 
 
 # Tank
-tank = ['Tank 1', 'Tank 2']
+tanks = ['Tank 1', 'Tank 2']
 
 
 
-# Xct variable : Turbined volume in plant c at period t (minFlowct < columnsXct < maxFlowct)
+# Xct variable : Turbined volume in plant c at day t (minFlowct < columnsXct < maxFlowct)
 # Just for the compilation
 minFlowct = 0
 maxFlowct = 100
 
-columnsXct = {plant[0]: [LpVariable("TurbinedVolume", minFlowct, maxFlowct, cat="Float")],
-           plant[1]: [LpVariable("TurbinedVolume", minFlowct, maxFlowct, cat="Float")]}
+columnsXct = {plants[0]: [LpVariable("TurbinedVolume", minFlowct, maxFlowct, cat="Float")],
+           plants[1]: [LpVariable("TurbinedVolume", minFlowct, maxFlowct, cat="Float")]}
 
-linesXct = period
+linesXct = days
 
 Xct = pd.DataFrame(columnsXct, index=linesXct)
 # print("\n---------- Xct ----------\n", Xct)
@@ -46,15 +40,15 @@ Xct = pd.DataFrame(columnsXct, index=linesXct)
 
 
 
-# Yct variable : Discharged volume in plant c at period t (minWeirct < columnsYct < maxWeirct)
+# Yct variable : Discharged volume in plant c at day t (minWeirct < columnsYct < maxWeirct)
 # Just for the compilation
 minWeirct = 0
 maxWeirct = 1000
 
-columnsYct = {plant[0]: [LpVariable("DischargedVolume", minWeirct, maxWeirct, cat="Float")],
-           plant[1]: [LpVariable("DischargedVolume", minWeirct, maxWeirct, cat="Float")]}
+columnsYct = {plants[0]: [LpVariable("DischargedVolume", minWeirct, maxWeirct, cat="Float")],
+           plants[1]: [LpVariable("DischargedVolume", minWeirct, maxWeirct, cat="Float")]}
 
-linesYct = period
+linesYct = days
 
 Yct = pd.DataFrame(columnsYct, index=linesYct)
 # print("\n---------- Yct ----------\n", Yct)
@@ -62,11 +56,11 @@ Yct = pd.DataFrame(columnsYct, index=linesYct)
 
 
 
-# Vct variable : Tank volume in plant c at period t
-columnsVct = {plant[0]: [LpVariable("100", 100, cat="Float")],
-           plant[1]: [LpVariable("230", 100, cat="Float")]}
+# Vct variable : Tank volume in plant c at day t
+columnsVct = {plants[0]: [LpVariable("100", 100, cat="Float")],
+           plants[1]: [LpVariable("230", 100, cat="Float")]}
 
-linesVct = period
+linesVct = days
 
 Vct = pd.DataFrame(columnsVct, index=linesVct)
 # print("\n---------- Vct ----------\n",, Vct)
@@ -75,10 +69,10 @@ Vct = pd.DataFrame(columnsVct, index=linesVct)
 
 
 # ANCct variable : ??? in plant c at period t
-columnsANCct = {plant[0]: 300,
-           plant[1]: 300}
+columnsANCct = {plants[0]: 300,
+           plants[1]: 300}
 
-linesANCct = period
+linesANCct = days
 
 ANCct = pd.DataFrame(columnsANCct, index=linesANCct)
 # print("\n---------- ANCct ----------\n", ANCct)
@@ -86,11 +80,11 @@ ANCct = pd.DataFrame(columnsANCct, index=linesANCct)
 
 
 
-# InitVolumec variable : initial volume of each plant
-columnsInitVolume = {plant[0]: 100,
-                     plant[1]: 100}
+# InitVolumec variable : initial volume of each plant in each tank
+columnsInitVolume = {plants[0]: 100,
+                     plants[1]: 100}
 
-linesInitVolume = tank
+linesInitVolume = tanks
 
 InitVolume = pd.DataFrame(columnsInitVolume, index=linesInitVolume)
 # print("\n---------- InitVolume ----------\n", InitVolume)
@@ -102,9 +96,18 @@ InitVolume = pd.DataFrame(columnsInitVolume, index=linesInitVolume)
 NBctn = LpVariable("ActiveTurbines", cat="Binary")
 
 
-prob += 2*Xct.iloc[i, j], "Objective Function"
+prob += 2*Xct['Plant 1']['Day 1'], "Objective Function"
 
+for plant in plants:
+    for tank in tanks:
+        prob += Vct[plant]['Day 1'] == (InitVolume[plant][tank] + InitVolume[plant][tank]) - Xct[plant]['Day 1'] + ANCct[plant]['Day 1']
+        print(Vct)
 
+# for plant in plants:
+#     for day in days:
+#         i = day+1
+#         print(i)
+        # prob += Vct[plant][day+1] == ANCct[plant][day] + Vct[plant][day] - Xct[plant][day] - Yct[plant][day], "Tank volume of the plant plant of day day"
 
 
 

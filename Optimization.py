@@ -35,7 +35,7 @@ columnsXct = {plants[0]: [LpVariable("TurbinedVolume", minFlowct, maxFlowct, cat
 linesXct = days
 
 Xct = pd.DataFrame(columnsXct, index=linesXct)
-# print("\n---------- Xct ----------\n", Xct)
+print("\n---------- Xct ----------\n", Xct)
 # End Xct variable
 
 

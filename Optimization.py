@@ -117,8 +117,6 @@ prob += Vct[1][29] == FinalVolume[1]
 
 for plant in range(len(plants)):
     # For each plant
-    if lpSum((NBctn)for n in range(len(numberTurbine))) != 1:
-        break
     for day in range(len(days)):
         # For each day
         if day == 0:

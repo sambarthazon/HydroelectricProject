@@ -94,6 +94,51 @@ prob += Vct['Plant 1']['Day 1'] == InitialVolumec, "Initial volume in each tank"
 # Objection Function
 # prob += lpSum(lpSum((2)for c in range(1, 2))for p in range(1, 30)), "Objective Function"
 
+prob += lpSum(lpSum((2*Vct[c][p])for c in range(len(plants)))for p in range(len(days))), "Objective Function"
+
+# Constraints to start with init volume
+prob += Vct[0][0] == InitVolume[0]
+prob += Vct[1][0] == InitVolume[1]
+
+
+# Constraints to finish with final volume
+prob += Vct[0][29] == FinalVolume[0]
+prob += Vct[1][29] == FinalVolume[1]
+
+
+for plant in range(len(plants)):
+    for day in range(len(days)):
+        # For each day
+        if day == 0:
+            # If day 1
+            prob += Vct[plant][day+1] == ANCct[plant][day] + Vct[plant][day] - Xct[plant][day] - Yct[plant][day]
+        elif day < 29:
+            # If day 2 to 29
+            if plant == 0:
+                # If plant 1
+                prob += Vct[plant][day+1] == ANCct[plant][day] + Vct[plant][day] - Xct[plant][day] - Yct[plant][day]
+            elif plant == 1:
+                # If plant 2
+                prob += Vct[plant][day+1] == ANCct[plant][day] + Vct[plant][day] - Xct[plant][day] - Yct[plant][day] + Xct[0][day] + Yct[0][day]
+            else:
+                # Else
+                print("Error plant")
+        elif day == 29:
+            # If day 30
+            if plant == 0:
+                # If plant 1
+                prob += Vct[plant][29] == FinalVolume[0]
+                prob += Vct[plant][day] == ANCct[plant][day] + Vct[plant][day] - Xct[plant][day] - Yct[plant][day]
+            elif plant == 1:
+                # If plant 2
+                prob += Vct[plant][29] == FinalVolume[1]
+                prob += Vct[plant][day] == ANCct[plant][day] + Vct[plant][day] - Xct[plant][day] - Yct[plant][day] + Xct[0][day] + Yct[0][day]
+            else:
+                # Else
+                print("Error plant")
+        else:
+            # Else
+            print("Error day")
 
 # Constrains
 # prob += Pct <= 2*Xcn, "Power produced by each plant"

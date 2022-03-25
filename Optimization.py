@@ -2,29 +2,6 @@ from pulp import *
 import pandas as pd
 
 
-# def SwitchPlant(_plant):
-#     switcher = {
-#         0: 'Plant 1',
-#         1: 'Plant 2'
-#     }
-#     return switcher.get(_plant, "no plant")
-
-# def SwitchDay(_day):
-#     switcher = {
-#         0: 'Day 1',
-#         1: 'Day 2',
-#         2: 'Day 3',
-#         3: 'Day 4',
-#         4: 'Day 5',
-#         5: 'Day 6',
-#         6: 'Day 7',
-#         7: 'Day 8',
-#         8: 'Day 9',
-#         9: 'Day 10'
-#     }
-#     return switcher.get(_day, "no day")
-
-
 
 print("\n\n\n------------------ New run ------------------") # Debug
 
@@ -121,54 +98,41 @@ NBctn = LpVariable("ActiveTurbines", cat="Binary")
 prob += 2*Xct['Plant 1']['Day 1'], "Objective Function"
 
 
-for plant, item in enumerate(plants):
-    for day, item in enumerate(days):
-        
-        if plant == 0:
-            # To check
-            if day == 0:
-                for tank in tanks:
-                    prob += Vct[plant][day] == (InitVolume[plant][tank] + InitVolume[plant][tank]) - Xct[plant][day] + ANCct[plant][day]
-            # To check
-            elif day <= 29:
-                prob += Vct[plant][day+1] == ANCct[plant][day] + Vct[plant][day] - Xct[plant][day] - Yct[plant][day]
+itDayPlant1 = iter(days)
+next(itDayPlant1)
+itDayPlant2 = iter(days)
+next(itDayPlant2)
+
+for plant in plants:
+    for day in days:
+        if plant == 'Plant 1':
+            print("Plant", plant)
+            if day == 'Day 1':
+                print("First day", day)
+                print("Constraint for day 1")
+                # V initiale - q + apports
+                print(next(itDayPlant1))
             else:
-                print("Not a day")
-        elif plant == 1:
-            # To check
-            if day == 0:
-                for tank in tanks:
-                    prob += Vct[plant][day] == (InitVolume[plant][tank] + InitVolume[plant][tank]) - Xct[plant][day] + ANCct[plant][day]
-            # To check
-            elif day <= 29:
-                prob += Vct[plant][day+1] == ANCct[plant][day] + Vct[plant][day] - Xct[plant][day] - Yct[plant][day] + Xct[0][day] + Yct[0][day]
+                print("Another day", day)
+                if day != 'Day 30':
+                    prob += Vct[plant][next(itDayPlant1)] == ANCct[plant][day] + Vct[plant][day] - Xct[plant][day] - Yct[plant][day]
+                else:
+                    print("Constraint for day 30")
+        elif plant == 'Plant 2':
+            print("Plant", plant)
+            if day == 'Day 1':
+                print("First day", day)
+                print("Constraint for day 1")
+                # V initiale - q + apports
+                print(next(itDayPlant2))
             else:
-                print("Not a day")
+                print("Another day", day)
+                if day != 'Day 30':
+                    prob += Vct[plant][next(itDayPlant2)] == ANCct[plant][day] + Vct[plant][day] - Xct[plant][day] - Yct[plant][day] + Xct['Plant 1'][day] + Yct['Plant 1'][day]
+                else:
+                    print("Constraint for day 30")
         else:
             print("Not a plant")
-        
-        
-        # match plant:
-        #     case 0: # Plant 1
-        #         match day:
-        #             case 0: # Day 0
-        #                 for tank in tanks:
-        #                     prob += Vct[plant][day] == (InitVolume[plant][tank] + InitVolume[plant][tank]) - Xct[plant][day] + ANCct[plant][day]
-        #                 break
-        #             case _: # Other days
-        #                 prob += Vct[plant][day+1] == ANCct[plant][day] + Vct[plant][day] - Xct[plant][day] - Yct[plant][day]#, "Tank volume of the plant plant of day day"
-        #                 break
-        #     case 1: # Plant 2
-        #         match day:
-        #             case 0: # Day 0
-        #                 for tank in tanks:
-        #                     prob += Vct[plant][day] == (InitVolume[plant][tank] + InitVolume[plant][tank]) - Xct[plant][day] + ANCct[plant][day]
-        #                 break
-        #             case _: # Other days
-        #                 prob += Vct[plant][day+1] == ANCct[plant][day] + Vct[plant][day] - Xct[plant][day] - Yct[plant][day] + Xct[0][day] + Yct[0][day]
-        #                 break
-        #     case _: # Another plant
-        #         print("Error")
 
 
 

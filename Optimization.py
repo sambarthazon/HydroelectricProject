@@ -1,4 +1,5 @@
 from pulp import *
+import pprint
 
 
 print("\n\n\n------------------ New run ------------------") # Debug
@@ -89,37 +90,38 @@ FinalVolume = [80, 80]
 # print("\n---------- FinalVolume ----------\n", FinalVolume)
 # End FinalVolume variable
 
-
-# Turbine combination variable
-
-numberTurbine = [1, 0, 1]
-
-# print("\n---------- Turbine combination ----------\n", InitVolume)
-# End Turbine combination variable
-
+turbines = [1, 0, 1]
 
 
 # Number of active turbines
-NBctn = LpVariable("ActiveTurbines", cat="Binary")
+NBctn = LpVariable.dicts("NBctn", 
+                         indices = (range(len(plants)), range(len(turbines))),
+                         cat="Binary")
 
+
+# Objective function
 prob += lpSum(lpSum((2*Vct[c][p])for c in range(len(plants)))for p in range(len(days))), "Objective Function"
 
-# Constraints to start with init volume
-prob += Vct[0][0] == InitVolume[0]
-prob += Vct[1][0] == InitVolume[1]
+
+# # Constraints to start with init volume
+# prob += Vct[0][0] == InitVolume[0]
+# prob += Vct[1][0] == InitVolume[1]
 
 
-# Constraints to finish with final volume
-prob += Vct[0][29] == FinalVolume[0]
-prob += Vct[1][29] == FinalVolume[1]
+# # Constraints to finish with final volume
+# prob += Vct[0][29] == FinalVolume[0]
+# prob += Vct[1][29] == FinalVolume[1]
+
 
 
 for plant in range(len(plants)):
     # For each plant
+    prob += lpSum((NBctn[plant][n])for n in turbines) == 1
     for day in range(len(days)):
         # For each day
         if day == 0:
             # If day 1
+            prob += Vct[plant][0] == InitVolume[plant]
             prob += Vct[plant][day+1] == ANCct[plant][day] + Vct[plant][day] - Xct[plant][day] - Yct[plant][day]
         elif day < 29:
             # If day 2 to 29
@@ -161,22 +163,21 @@ for plant in range(len(plants)):
         Vct[plant][day] = pulp.value(Vct[plant][day])
 
 
+pp = pprint.PrettyPrinter(indent = 2)
+
 # Print Xct
 print("\n---------- Xct ----------")
-for key, val in Xct.items():
-    print(key, ' : ', val)
+pp.pprint(Xct)
     
     
 # Print Yct
 print("\n---------- Yct ----------")
-for key, val in Yct.items():
-    print(key, ' : ', val)
+pp.pprint(Yct)
 
 
 # Print Vct
 print("\n---------- Vct ----------")
-for key, val in Vct.items():
-    print(key, ' : ', val)
+pp.pprint(Vct)
 
 # faire conversion entre m^2/s en hectom^2/jour
 # Variables en hectom^2/jour (conversion : m^2/s = 0,086400 hectom^2/jour)

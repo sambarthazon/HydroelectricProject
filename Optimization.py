@@ -1,5 +1,4 @@
 from pulp import *
-import pandas as pd
 
 
 print("\n\n\n------------------ New run ------------------") # Debug
@@ -91,12 +90,12 @@ FinalVolume = [80, 80]
 # End FinalVolume variable
 
 
-# Turbine vombination variable
+# Turbine combination variable
 
 numberTurbine = [1, 0, 1]
 
-# print("\n---------- InitVolume ----------\n", InitVolume)
-# End InitVolume variable
+# print("\n---------- Turbine combination ----------\n", InitVolume)
+# End Turbine combination variable
 
 
 
@@ -153,6 +152,31 @@ for plant in range(len(plants)):
 
 prob.solve()
 
+for plant in range(len(plants)):
+    # For each plant
+    for day in range(len(days)):
+        # For each day
+        Xct[plant][day] = pulp.value(Xct[plant][day])
+        Yct[plant][day] = pulp.value(Yct[plant][day])
+        Vct[plant][day] = pulp.value(Vct[plant][day])
+
+
+# Print Xct
+print("\n---------- Xct ----------")
+for key, val in Xct.items():
+    print(key, ' : ', val)
+    
+    
+# Print Yct
+print("\n---------- Yct ----------")
+for key, val in Yct.items():
+    print(key, ' : ', val)
+
+
+# Print Vct
+print("\n---------- Vct ----------")
+for key, val in Vct.items():
+    print(key, ' : ', val)
 
 # faire conversion entre m^2/s en hectom^2/jour
-# Variables en hectom^2/jour (conversion : m2/s = 0,086400 hecto^m2/jour)
+# Variables en hectom^2/jour (conversion : m^2/s = 0,086400 hectom^2/jour)

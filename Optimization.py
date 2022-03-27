@@ -90,35 +90,27 @@ FinalVolume = [80, 80]
 # print("\n---------- FinalVolume ----------\n", FinalVolume)
 # End FinalVolume variable
 
-turbines = [1, 0, 1]
-
 
 # Number of active turbines
-NBctn = LpVariable.dicts("NBctn", 
-                         indices = (range(len(plants)), range(len(turbines))),
+NBctn = LpVariable.dicts(name = "NBctn", 
+                         indices = range(len(plants)),
                          cat="Binary")
+
+
+turbineCombination = [[0, 0, 1], [0, 1, 0]]
 
 
 # Objective function
 prob += lpSum(lpSum((2*Vct[c][p])for c in range(len(plants)))for p in range(len(days))), "Objective Function"
 
 
-# # Constraints to start with init volume
-# prob += Vct[0][0] == InitVolume[0]
-# prob += Vct[1][0] == InitVolume[1]
-
-
-# # Constraints to finish with final volume
-# prob += Vct[0][29] == FinalVolume[0]
-# prob += Vct[1][29] == FinalVolume[1]
-
-
 
 for plant in range(len(plants)):
     # For each plant
-    prob += lpSum((NBctn[plant][n])for n in turbines) == 1
     for day in range(len(days)):
         # For each day
+        prob += lpSum((turbineCombination[plant][i])for i in range(0, 3)) == 1
+        # prob += lpSum((NBctn[plant][n])for n in turbines) == 1
         if day == 0:
             # If day 1
             prob += Vct[plant][0] == InitVolume[plant]

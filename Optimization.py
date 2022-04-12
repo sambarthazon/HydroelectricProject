@@ -60,6 +60,16 @@ Vct = LpVariable.dicts(name = "Vct",
 # End Vct variable
 
 
+# Pct variable : ___ in plant c at day t
+
+Pct = LpVariable.dicts(name = "Pct",
+                       indices = (range(len(plants)), range(len(days))),
+                       lowBound = 0,
+                       cat = "Continuous")
+
+# print("\n---------- Pct ----------\n", Pct)
+# End Pct variable
+
 
 # ANCct variable : ??? in plant c at period t
 
@@ -92,25 +102,25 @@ FinalVolume = [80, 80]
 
 
 # Number of active turbines
+turbines = [1, 2, 3]
+
 NBctn = LpVariable.dicts(name = "NBctn", 
-                         indices = range(len(plants)),
+                         indices = (range(len(plants)), range(len(days)), range(len(turbines))),
                          cat="Binary")
 
 
-turbineCombination = [[0, 0, 1], [0, 1, 0]]
-
 
 # Objective function
-prob += lpSum(lpSum((2*Vct[c][p])for c in range(len(plants)))for p in range(len(days))), "Objective Function"
-
+prob += lpSum(lpSum((2*Vct[plant][day])for plant in range(len(plants)))for day in range(len(days))), "Objective Function"
 
 
 for plant in range(len(plants)):
     # For each plant
     for day in range(len(days)):
         # For each day
-        prob += lpSum((turbineCombination[plant][i])for i in range(0, 3)) == 1
-        # prob += lpSum((NBctn[plant][n])for n in turbines) == 1
+        prob += Pct[plant][day] == (NBctn[plant][day][0]*1) + (NBctn[plant][day][1]*2) + (NBctn[plant][day][2]*3)
+        for combine in NBctn[plant][day]:
+            prob += lpSum(NBctn[plant][day]) == 1
         if day == 0:
             # If day 1
             prob += Vct[plant][0] == InitVolume[plant]
@@ -143,9 +153,12 @@ for plant in range(len(plants)):
             # Else
             print("Error day")
 
-
+        
+        
 prob.solve()
+        
 
+        
 for plant in range(len(plants)):
     # For each plant
     for day in range(len(days)):
@@ -153,6 +166,10 @@ for plant in range(len(plants)):
         Xct[plant][day] = pulp.value(Xct[plant][day])
         Yct[plant][day] = pulp.value(Yct[plant][day])
         Vct[plant][day] = pulp.value(Vct[plant][day])
+        Pct[plant][day] = pulp.value(Pct[plant][day])
+        for turbine in range(len(turbines)):
+            NBctn[plant][day][turbine] = pulp.value(NBctn[plant][day][turbine])
+
 
 
 pp = pprint.PrettyPrinter(indent = 2)
@@ -171,5 +188,17 @@ pp.pprint(Yct)
 print("\n---------- Vct ----------")
 pp.pprint(Vct)
 
-# faire conversion entre m^2/s en hectom^2/jour
-# Variables en hectom^2/jour (conversion : m^2/s = 0,086400 hectom^2/jour)
+
+# Print NBctn
+print("\n---------- NBctn ----------")
+pp.pprint(NBctn)
+
+
+# Print Pct
+print("\n---------- Pct ----------")
+pp.pprint(Pct)
+
+# faire conversion entre m^3/s en hectom^3/jour
+# Variables en hectom^3/jour (conversion : m^3/s = 0,086400 hectom^3/jour)
+
+# Convertire ANC, X et Y en hectom^3 pas besoin pour V car déjà en hectom^3

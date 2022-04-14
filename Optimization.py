@@ -132,7 +132,7 @@ for plant in range(len(plants)):
                 prob += Vct[plant][day+1] == ANCct[plant][day] + Vct[plant][day] - Xct[plant][day] - Yct[plant][day]
             elif plant == 1:
                 # If plant 2
-                prob += Vct[plant][day+1] == ANCct[plant][day] + Vct[plant][day] - Xct[plant][day] - Yct[plant][day] + Xct[0][day] + Yct[0][day]
+                prob += Vct[plant][day+1] == ANCct[plant][day] + Vct[plant][day] - Xct[plant][day] - Yct[plant][day] + Xct[plant-1][day] + Yct[plant-1][day]
             else:
                 # Else
                 print("Error plant")
@@ -145,7 +145,7 @@ for plant in range(len(plants)):
             elif plant == 1:
                 # If plant 2
                 prob += Vct[plant][29] == FinalVolume[1]
-                prob += Vct[plant][day] == ANCct[plant][day] + Vct[plant][day] - Xct[plant][day] - Yct[plant][day] + Xct[0][day] + Yct[0][day]
+                prob += Vct[plant][day] == ANCct[plant][day] + Vct[plant][day] - Xct[plant][day] - Yct[plant][day] + Xct[plant-1][day] + Yct[plant-1][day]
             else:
                 # Else
                 print("Error plant")
@@ -201,4 +201,6 @@ pp.pprint(Pct)
 # faire conversion entre m^3/s en hectom^3/jour
 # Variables en hectom^3/jour (conversion : m^3/s = 0,086400 hectom^3/jour)
 
-# Convertire ANC, X et Y en hectom^3 pas besoin pour V car déjà en hectom^3
+# Convertir ANC, X et Y en hectom^3 pas besoin pour V car déjà en hectom^3
+
+# Convertir la puissance en MW/j

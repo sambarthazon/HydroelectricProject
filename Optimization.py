@@ -19,7 +19,7 @@ plants = ['Plant 1', 'Plant 2']
 
 
 # Tanks
-tanks = ['Tank']
+tanks = ['Tank 1', 'Tank 2']
 
 
 
@@ -27,8 +27,8 @@ tanks = ['Tank']
 
 Xct = LpVariable.dicts(name = "Xct",
                        indices = (range(len(plants)), range(len(days))),
-                       lowBound = 0,
-                       upBound = 100,
+                       lowBound = 200,
+                       upBound = 1400,
                        cat = "Continuous")
 
 # print("\n---------- Xct ----------\n", Xct)
@@ -40,8 +40,8 @@ Xct = LpVariable.dicts(name = "Xct",
 
 Yct = LpVariable.dicts(name = "Yct",
                        indices = (range(len(plants)), range(len(days))),
-                       lowBound = 0,
-                       upBound = 1000,
+                       lowBound = 353,
+                       upBound = 500,
                        cat = "Continuous")
 
 # print("\n---------- Yct ----------\n", Yct)
@@ -71,13 +71,28 @@ Pct = LpVariable.dicts(name = "Pct",
 # End Pct variable
 
 
+# Hyperplane for plant 1_dim_turbines
+
+H_1_x = [[0.25,-0.1], [0.26,-0.15], [0.27,-0.2]]
+H_1_y = [[0.008406189344, 0.12], [0.008806189344, 0.125], [0.009406189344, 0.13]]
+H_1_z = [[11, 252], [11, 300], [11, 380]]
+
+
+# Hyperplane for plant 2_dim_turbines
+
+H_2_x = [[0.45, -0.35], [0.5, -0.38], [0.7, -0.40]]
+H_2_y = [[0.009, 0.10], [0.009, 0.10], [0.009, 0.10]]
+H_2_z = [[0, 800], [0, 800], [0, 800]]
+
+
+
 # ANCct variable : ??? in plant c at period t
 
 ANCct = []
 for i in range(len(plants)):
     array = []
     for j in range(len(days)):
-        array.append(50)
+        array.append(600)
     ANCct.append(array)
 
 # print("\n---------- ANCct ----------\n", ANCct)
@@ -87,7 +102,7 @@ for i in range(len(plants)):
 
 # InitVolumec variable : initial volume of each plant in each tank
 
-InitVolume = [100, 100]
+InitVolume = [475, 475]
 
 # print("\n---------- InitVolume ----------\n", InitVolume)
 # End InitVolume variable
@@ -118,8 +133,15 @@ for plant in range(len(plants)):
     # For each plant
     for day in range(len(days)):
         # For each day
-        prob += Pct[plant][day] == (NBctn[plant][day][0]*1) + (NBctn[plant][day][1]*2) + (NBctn[plant][day][2]*3)
         for combine in NBctn[plant][day]:
+            if plant == 0:
+                prob += Pct[plant][day] <= H_1_x[combine][0] * Xct[plant][day] + H_1_y[combine][0] * Yct[plant][day] + H_1_z[combine][0] + (1 - NBctn[plant][day][combine]) * 2000
+                prob += Pct[plant][day] <= H_1_x[combine][1] * Xct[plant][day] + H_1_y[combine][1] * Yct[plant][day] + H_1_z[combine][1] + (1 - NBctn[plant][day][combine]) * 2000
+            elif plant == 1:
+                prob += Pct[plant][day] <= H_2_x[combine][0] * Xct[plant][day] + H_2_y[combine][0] * Yct[plant][day] + H_2_z[combine][0] + (1 - NBctn[plant][day][combine]) * 2000
+                prob += Pct[plant][day] <= H_2_x[combine][1] * Xct[plant][day] + H_2_y[combine][1] * Yct[plant][day] + H_2_z[combine][1] + (1 - NBctn[plant][day][combine]) * 2000
+            else:
+                print("Error plant")
             prob += lpSum(NBctn[plant][day]) == 1
         if day == 0:
             # If day 1

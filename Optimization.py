@@ -9,9 +9,9 @@ prob = LpProblem("Hydroelectric_Problem", LpMaximize)
 
 
 # Period of the optimization
-days = ['Day 1', 'Day 2', 'Day 3', 'Day 4', 'Day 5', 'Day 6', 'Day 7', 'Day 8', 'Day 9', 'Day 10',
-         'Day 11', 'Day 12', 'Day 13', 'Day 14', 'Day 15', 'Day 16', 'Day 17', 'Day 18', 'Day 19', 'Day 20',
-         'Day 21', 'Day 22', 'Day 23', 'Day 24', 'Day 25', 'Day 26', 'Day 27', 'Day 28', 'Day 29', 'Day 30']
+days = ['Day 1', 'Day 2', 'Day 3', 'Day 4', 'Day 5', 'Day 6', 'Day 7', 'Day 8', 'Day 9', 'Day 10']
+        #  'Day 11', 'Day 12', 'Day 13', 'Day 14', 'Day 15', 'Day 16', 'Day 17', 'Day 18', 'Day 19', 'Day 20',
+        #  'Day 21', 'Day 22', 'Day 23', 'Day 24', 'Day 25', 'Day 26', 'Day 27', 'Day 28', 'Day 29', 'Day 30']
 
 
 # Plants
@@ -40,7 +40,7 @@ Xct = LpVariable.dicts(name = "Xct",
 
 Yct = LpVariable.dicts(name = "Yct",
                        indices = (range(len(plants)), range(len(days))),
-                       lowBound = 353,
+                       lowBound = 0,
                        upBound = 500,
                        cat = "Continuous")
 
@@ -53,7 +53,6 @@ Yct = LpVariable.dicts(name = "Yct",
 
 Vct = LpVariable.dicts(name = "Vct",
                        indices = (range(len(plants)), range(len(days))),
-                       lowBound = 0,
                        cat = "Continuous")
 
 # print("\n---------- Vct ----------\n", Vct)
@@ -65,6 +64,7 @@ Vct = LpVariable.dicts(name = "Vct",
 Pct = LpVariable.dicts(name = "Pct",
                        indices = (range(len(plants)), range(len(days))),
                        lowBound = 0,
+                       upBound = 2000,
                        cat = "Continuous")
 
 # print("\n---------- Pct ----------\n", Pct)
@@ -88,12 +88,7 @@ H_2_z = [[0, 800], [0, 800], [0, 800]]
 
 # ANCct variable : ??? in plant c at period t
 
-ANCct = []
-for i in range(len(plants)):
-    array = []
-    for j in range(len(days)):
-        array.append(600)
-    ANCct.append(array)
+ANCct = [[400 for _ in range(len(days))] for _ in range(len(plants))]
 
 # print("\n---------- ANCct ----------\n", ANCct)
 # End ANCct variable
@@ -102,15 +97,15 @@ for i in range(len(plants)):
 
 # InitVolumec variable : initial volume of each plant in each tank
 
-InitVolume = [475, 475]
+InitVolume = [378, 475]
 
 # print("\n---------- InitVolume ----------\n", InitVolume)
 # End InitVolume variable
 
 
-# InitVolumec variable : final volume of each plant in each tank
+# FinalVolumec variable : final volume of each plant in each tank
 
-FinalVolume = [80, 80]
+FinalVolume = [355, 453]
 
 # print("\n---------- FinalVolume ----------\n", FinalVolume)
 # End FinalVolume variable
@@ -126,48 +121,57 @@ NBctn = LpVariable.dicts(name = "NBctn",
 
 
 # Objective function
-prob += lpSum(lpSum((2*Vct[plant][day])for plant in range(len(plants)))for day in range(len(days))), "Objective Function"
+prob += lpSum(lpSum((Pct[plant][day])for plant in range(len(plants)))for day in range(len(days))), "Objective Function"
 
 
 for plant in range(len(plants)):
     # For each plant
     for day in range(len(days)):
         # For each day
+        if plant == 0:
+            Vct[plant][day].lowBound = 350
+            Vct[plant][day].upBound = 385
+        elif plant == 1:
+            Vct[plant][day].lowBound = 450
+            Vct[plant][day].upBound = 500
+        else:
+            print("Error plant")
+
         for combine in NBctn[plant][day]:
             if plant == 0:
-                prob += Pct[plant][day] <= H_1_x[combine][0] * Xct[plant][day] + H_1_y[combine][0] * Yct[plant][day] + H_1_z[combine][0] + (1 - NBctn[plant][day][combine]) * 2000
-                prob += Pct[plant][day] <= H_1_x[combine][1] * Xct[plant][day] + H_1_y[combine][1] * Yct[plant][day] + H_1_z[combine][1] + (1 - NBctn[plant][day][combine]) * 2000
+                prob += Pct[plant][day] <= H_1_x[combine][0] * (Xct[plant][day]*0.086400) + H_1_y[combine][0] * Vct[plant][day] + H_1_z[combine][0] + (1 - NBctn[plant][day][combine]) * 2000
+                prob += Pct[plant][day] <= H_1_x[combine][1] * (Xct[plant][day]*0.086400) + H_1_y[combine][1] * Vct[plant][day] + H_1_z[combine][1] + (1 - NBctn[plant][day][combine]) * 2000
             elif plant == 1:
-                prob += Pct[plant][day] <= H_2_x[combine][0] * Xct[plant][day] + H_2_y[combine][0] * Yct[plant][day] + H_2_z[combine][0] + (1 - NBctn[plant][day][combine]) * 2000
-                prob += Pct[plant][day] <= H_2_x[combine][1] * Xct[plant][day] + H_2_y[combine][1] * Yct[plant][day] + H_2_z[combine][1] + (1 - NBctn[plant][day][combine]) * 2000
+                prob += Pct[plant][day] <= H_2_x[combine][0] * (Xct[plant][day]*0.086400) + H_2_y[combine][0] * Vct[plant][day] + H_2_z[combine][0] + (1 - NBctn[plant][day][combine]) * 2000
+                prob += Pct[plant][day] <= H_2_x[combine][1] * (Xct[plant][day]*0.086400) + H_2_y[combine][1] * Vct[plant][day] + H_2_z[combine][1] + (1 - NBctn[plant][day][combine]) * 2000
             else:
                 print("Error plant")
             prob += lpSum(NBctn[plant][day]) == 1
         if day == 0:
             # If day 1
             prob += Vct[plant][0] == InitVolume[plant]
-            prob += Vct[plant][day+1] == ANCct[plant][day] + Vct[plant][day] - Xct[plant][day] - Yct[plant][day]
-        elif day < 29:
+            prob += Vct[plant][day+1] == (ANCct[plant][day]*0.086400) + Vct[plant][day] - (Xct[plant][day]*0.086400) - (Yct[plant][day]*0.086400)
+        elif day < 9:
             # If day 2 to 29
             if plant == 0:
                 # If plant 1
-                prob += Vct[plant][day+1] == ANCct[plant][day] + Vct[plant][day] - Xct[plant][day] - Yct[plant][day]
+                prob += Vct[plant][day+1] == (ANCct[plant][day]*0.086400) + Vct[plant][day] - (Xct[plant][day]*0.086400) - (Yct[plant][day]*0.086400)
             elif plant == 1:
                 # If plant 2
-                prob += Vct[plant][day+1] == ANCct[plant][day] + Vct[plant][day] - Xct[plant][day] - Yct[plant][day] + Xct[plant-1][day] + Yct[plant-1][day]
+                prob += Vct[plant][day+1] == (ANCct[plant][day]*0.086400) + Vct[plant][day] - (Xct[plant][day]*0.086400) - (Yct[plant][day]*0.086400) + (Xct[plant-1][day]*0.086400) + (Yct[plant-1][day]*0.086400)
             else:
                 # Else
                 print("Error plant")
-        elif day == 29:
+        elif day == 9:
             # If day 30
             if plant == 0:
                 # If plant 1
-                prob += Vct[plant][29] == FinalVolume[0]
-                prob += Vct[plant][day] == ANCct[plant][day] + Vct[plant][day] - Xct[plant][day] - Yct[plant][day]
+                prob += Vct[plant][9] == FinalVolume[0]
+                prob += Vct[plant][day] == (ANCct[plant][day]*0.086400) + Vct[plant][day] - (Xct[plant][day]*0.086400) - (Yct[plant][day]*0.086400)
             elif plant == 1:
                 # If plant 2
-                prob += Vct[plant][29] == FinalVolume[1]
-                prob += Vct[plant][day] == ANCct[plant][day] + Vct[plant][day] - Xct[plant][day] - Yct[plant][day] + Xct[plant-1][day] + Yct[plant-1][day]
+                prob += Vct[plant][9] == FinalVolume[1]
+                prob += Vct[plant][day] == (ANCct[plant][day]*0.086400) + Vct[plant][day] - (Xct[plant][day]*0.086400) - (Yct[plant][day]*0.086400) + (Xct[plant-1][day]*0.086400) + (Yct[plant-1][day]*0.086400)
             else:
                 # Else
                 print("Error plant")
@@ -175,10 +179,8 @@ for plant in range(len(plants)):
             # Else
             print("Error day")
 
-        
-        
+
 prob.solve()
-        
 
         
 for plant in range(len(plants)):
@@ -220,9 +222,7 @@ pp.pprint(NBctn)
 print("\n---------- Pct ----------")
 pp.pprint(Pct)
 
-# faire conversion entre m^3/s en hectom^3/jour
-# Variables en hectom^3/jour (conversion : m^3/s = 0,086400 hectom^3/jour)
 
-# Convertir ANC, X et Y en hectom^3 pas besoin pour V car déjà en hectom^3
+# conversion : m^3/s = 0.086400 hectom^3/jour
 
 # Convertir la puissance en MW/j

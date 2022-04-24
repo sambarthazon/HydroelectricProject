@@ -2,7 +2,7 @@ from pulp import *
 import pprint
 
 
-print("\n\n\n------------------ New run ------------------") # Debug
+print("\n\n\n------------------ New run ------------------")
 
 """
 Création du problème, maximisation de la production électrique

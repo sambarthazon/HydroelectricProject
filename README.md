@@ -1,5 +1,7 @@
 # Hydroelectric project
 
-It's just a test
+Optimisation court terme d'une centrale hydroélectrique au Québec.
 
-## Creation of a branch
+## Objectif
+
+Maximiser la production d'électricité de la centrale.

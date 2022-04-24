@@ -26,12 +26,6 @@ plants = ['Plant 1', 'Plant 2']
 
 
 """
-Réservoirs des centrales
-"""
-tanks = ['Tank 1', 'Tank 2']
-
-
-"""
 Nombre de turbine dans chaque centrale
 """
 turbines = [1, 2, 3]

@@ -242,7 +242,8 @@ pp.pprint(Pct)
 
 
 
-"""Les variables 'Xct', 'Yct' et 'ANCct' étaient en m^3/s nous les avons convertis en hectomètre^3/jour, 
+"""
+Les variables 'Xct', 'Yct' et 'ANCct' étaient en m^3/s nous les avons convertis en hectomètre^3/jour, 
 avec le coefficient : m^3/s = 0.086400 hectomètre^3/jour
 
 Nous devons également convertir la puissance en MW/j

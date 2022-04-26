@@ -179,7 +179,7 @@ for plant in range(len(plants)):
 """
 Appel du solver
 """
-prob.solve()
+prob.solve(GLPK_CMD(path='/opt/local/bin/glpsol'))
 
 
 """
